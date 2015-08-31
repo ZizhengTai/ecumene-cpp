@@ -1,9 +1,0 @@
-//#include "ecumene/memory.h"
-
-namespace ecumene {
-
-namespace detail {
-
-}
-
-}
