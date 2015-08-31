@@ -79,9 +79,7 @@ void HeartbeatService::actorTask(zsock_t *pipe, void *args)
 
     HeartbeatService &service = *static_cast<HeartbeatService *>(args);
 
-    auto del = [](zpoller_t *p) { zpoller_destroy(&p); };
-    std::unique_ptr<zpoller_t, decltype(del)>
-        poller(zpoller_new(pipe, nullptr), del);
+    const auto poller = detail::makePoller(zpoller_new(pipe, nullptr));
     assert(poller.get());
 
     int rc = zsock_signal(pipe, 0);
