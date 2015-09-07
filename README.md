@@ -67,9 +67,10 @@ myworker.cpp:
 using namespace std;
 using namespace ecumene;
 
-FunctionImpl<string(string)> greet([](string name) {
+FunctionImpl<string(string)> greet("myapp.greet", "tcp://*:5555", "tcp://127.0.0.1:5555",
+[](string name) {
     return name + ", welcome to Ecumene!";
-}, "myapp.greet", "tcp://*:5555", "tcp://127.0.0.1:5555");
+});
 
 int main()
 {
