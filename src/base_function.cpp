@@ -1,4 +1,5 @@
 #include "ecumene/base_function.h"
+#include "ecumene/exception.h"
 
 namespace ecumene {
 
@@ -30,16 +31,16 @@ std::exception_ptr BaseFunction::handleError(const FunctionCallResult &result) c
         break;
     case FunctionCallResult::Status::InvalidArgument:
         return std::make_exception_ptr(
-                std::invalid_argument("invalid argument to " + _ecmKey));
+                InvalidArgument("invalid argument to " + _ecmKey));
     case FunctionCallResult::Status::UndefinedReference:
         return std::make_exception_ptr(
-                std::runtime_error("undefined reference to " + _ecmKey));
+                UndefinedReference("undefined reference to " + _ecmKey));
     case FunctionCallResult::Status::NetworkError:
         return std::make_exception_ptr(
-                std::runtime_error("failed to call " + _ecmKey + " due to network error"));
+                NetworkError("failed to call " + _ecmKey + " due to network error"));
     default:
         return std::make_exception_ptr(
-                std::runtime_error("unknown error when calling " + _ecmKey));
+                UnknownError("unknown error when calling " + _ecmKey));
     }
     return nullptr;
 }

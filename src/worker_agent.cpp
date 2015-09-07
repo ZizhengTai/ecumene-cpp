@@ -2,6 +2,7 @@
 
 #include <czmq.h>
 
+#include "ecumene/exception.h"
 #include "ecumene/memory.h"
 #include "ecumene/worker_agent.h"
 
@@ -61,6 +62,33 @@ void WorkerAgent::actorTask(zsock_t *pipe, void *args)
             auto identity = detail::makeFrame(zmsg_pop(request.get()));
             auto id = detail::makeFrame(zmsg_pop(request.get()));
 
+            static const auto respond = [](
+                    auto &&identity,
+                    auto &&id,
+                    const char *status,
+                    auto &&data,
+                    zsock_t *sock) {
+                zmsg_t *response = zmsg_new();
+
+                // Identity for ROUTER
+                zframe_t *f = identity.release();
+                zmsg_append(response, &f);
+
+                // Caller local ID
+                f = id.release();
+                zmsg_append(response, &f);
+
+                // Status
+                f = zframe_new(status, std::strlen(status));
+                zmsg_append(response, &f);
+
+                // Result
+                f = data.release();
+                zmsg_append(response, &f);
+
+                zmsg_send(&response, sock);
+            };
+
             try {
                 auto argsFrame = detail::makeFrame(zmsg_pop(request.get()));
 
@@ -76,50 +104,17 @@ void WorkerAgent::actorTask(zsock_t *pipe, void *args)
                 auto resultFrame =
                     detail::makeFrame(zframe_new(sbuf.data(), sbuf.size()));
 
-                // Identity for ROUTER
-                zframe_t *f = identity.get();
-                rc = zframe_send(&f, sock, ZFRAME_MORE);
-                assert(rc == 0);
-                identity.release();
-
-                // Caller local ID
-                f = id.get();
-                rc = zframe_send(&f, sock, ZFRAME_MORE);
-                assert(rc == 0);
-                id.release();
-
-                // Status
-                f = zframe_new_empty();
-                rc = zframe_send(&f, sock, ZFRAME_MORE);
-                assert(rc == 0);
-
-                // Result
-                f = resultFrame.get();
-                rc = zframe_send(&f, sock, 0);
-                assert(rc == 0);
-                resultFrame.release();
+                respond(identity, id, "", resultFrame, sock);
             } catch (const msgpack::type_error &e) {
-                // Identity for ROUTER
-                zframe_t *f = identity.get();
-                rc = zframe_send(&f, sock, ZFRAME_MORE);
-                assert(rc == 0);
-                identity.release();
-
-                // Caller local ID
-                f = id.get();
-                rc = zframe_send(&f, sock, ZFRAME_MORE);
-                assert(rc == 0);
-                id.release();
-
-                // Status
-                f = zframe_new("I", 1);
-                rc = zframe_send(&f, sock, ZFRAME_MORE);
-                assert(rc == 0);
-
-                // Result
-                f = zframe_new_empty();
-                rc = zframe_send(&f, sock, 0);
-                assert(rc == 0);
+                respond(identity, id, "I", detail::makeFrame(zframe_new_empty()), sock);
+            } catch (const InvalidArgument &e) {
+                respond(identity, id, "I", detail::makeFrame(zframe_new_empty()), sock);
+            } catch (const UndefinedReference &e) {
+                respond(identity, id, "U", detail::makeFrame(zframe_new_empty()), sock);
+            } catch (const NetworkError &e) {
+                respond(identity, id, "N", detail::makeFrame(zframe_new_empty()), sock);
+            } catch (...) {
+                respond(identity, id, "?", detail::makeFrame(zframe_new_empty()), sock);
             }
         }
     }

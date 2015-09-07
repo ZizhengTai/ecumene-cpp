@@ -5,6 +5,7 @@
 
 #include <msgpack.hpp>
 
+#include "ecumene/exception.h"
 #include "ecumene/heartbeat_service.h"
 #include "ecumene/memory.h"
 #include "ecumene/worker_agent.h"
