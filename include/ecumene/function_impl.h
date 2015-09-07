@@ -43,13 +43,13 @@ template<class R, class ... Args>
 class FunctionImpl<R(Args...)> {
 public:
     explicit FunctionImpl(
-            const std::function<R(Args...)> &func,
             const std::string &ecmKey,
             const std::string &localEndpoint,
-            const std::string &publicEndpoint)
-        : _func(func)
-        , _ecmKey(ecmKey)
+            const std::string &publicEndpoint,
+            const std::function<R(Args...)> &func)
+        : _ecmKey(ecmKey)
         , _publicEndpoint(publicEndpoint)
+        , _func(func)
         , _agent(
                 ecmKey,
                 localEndpoint,
@@ -86,10 +86,10 @@ public:
     }
 
 private:
-    const std::function<R(Args...)> _func;
-    std::tuple<Args...> _argsTuple;
     const std::string _ecmKey;
     const std::string _publicEndpoint;
+    const std::function<R(Args...)> _func;
+    std::tuple<Args...> _argsTuple;
     const WorkerAgent _agent;
 };
 
