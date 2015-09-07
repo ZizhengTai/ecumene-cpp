@@ -3,6 +3,11 @@ This is the C++ client/worker library for the Ecumene RPC protocol.
 
 # Building and Installation
 
+#Features
+* **Fast:** Ecumene is based on ZeroMQ and MessagePack, without the overhead of HTTP.
+* **Natural:** Ecumene is designed with the interoperability with native function calls in mind, and tries to abstract away the difference between local and remote function calls.
+* **Composable:** Ecumene supports the idea of "composable services," where network services can be composed the same way as [`higher-order functions`](https://www.wikiwand.com/en/Higher-order_function).
+
 # Getting Started
 myclient.cpp:
 ```c++
