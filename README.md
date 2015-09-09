@@ -84,4 +84,4 @@ Compile with `g++ -std=c++14 -Wall -Wextra -pedantic -O3 -pthread -o myclient my
 Then run `./myworker` followed by `./myclient`.
 
 # License
-ecumene-cpp is licensed under the GNU Lesser General Public License v3.0. See the [`LICENSE`](./LICENSE) file for details.
+ecumene-cpp is licensed under the GNU Lesser General Public License v3.0. See the [LICENSE](./LICENSE) file for details.
